@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>TESLA VIDEOS</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family:Arial,sans-serif;
+            background:#111827;
+            color:white;
+            height:100vh;
+            display:grid;
+            grid-template-columns:250px 320px 1fr;
+        }
+
+        button{
+            cursor:pointer;
+        }
+
+        .categories-panel{
+            background:#1f2937;
+            border-right:1px solid #374151;
+            overflow-y:auto;
+        }
+
+        .categories-panel.hidden{
+            display:none;
+        }
+
+        .panel-header{
+            padding:15px;
+            border-bottom:1px solid #374151;
+        }
+
+        .logo{
+            font-size:24px;
+            font-weight:bold;
+            color:#ef4444;
+            margin-bottom:15px;
+            text-align:center;
+        }
+
+        .categories{
+            padding:15px;
+        }
+
+        .category{
+            background:#374151;
+            padding:12px;
+            border-radius:8px;
+            margin-bottom:10px;
+            cursor:pointer;
+        }
+
+        .category:hover,
+        .category.active{
+            background:#ef4444;
+        }
+
+        .videos-panel{
+            background:#111827;
+            border-right:1px solid #374151;
+            overflow-y:auto;
+        }
+
+		.videos-panel.hidden{
+		    display:none;
+		}
+
+        .search{
+            width:100%;
+            padding:10px;
+            border:none;
+            border-radius:8px;
+            margin-top:10px;
+        }
+
+        .video-list{
+            padding:15px;
+        }
+
+        .video-item{
+            background:#1f2937;
+            padding:12px;
+            border-radius:8px;
+            margin-bottom:10px;
+            cursor:pointer;
+            transition:.2s;
+        }
+
+        .video-item:hover{
+            background:#374151;
+        }
+
+        .video-item.active{
+            background:#ef4444;
+        }
+
+        .player-panel{
+            display:flex;
+            flex-direction:column;
+        }
+
+        .player-header{
+            padding:15px 20px;
+            border-bottom:1px solid #374151;
+            display:flex;
+            align-items:center;
+            gap:15px;
+        }
+
+        .player-controls{
+            padding:15px 20px;
+            display:flex;
+            gap:10px;
+            border-bottom:1px solid #374151;
+        }
+
+        .player-container{
+            flex:1;
+            padding:20px;
+        }
+
+        #player{
+            width:100%;
+            height:80vh;
+        }
+
+        .button{
+            width:100%;
+            padding:12px;
+            border:none;
+            border-radius:8px;
+            background:#ef4444;
+            color:white;
+            font-size:15px;
+            margin-bottom:10px;
+        }
+
+        .control-btn{
+            padding:10px 16px;
+            border:none;
+            border-radius:8px;
+            background:#ef4444;
+            color:white;
+        }
+
+        .toggle-btn{
+            padding:10px 16px;
+            border:none;
+            border-radius:8px;
+            background:#374151;
+            color:white;
+        }
+
+		.category,
+		.video-item{
+		    display:flex;
+		    justify-content:space-between;
+		    align-items:center;
+		}
+
+		#loginBtn{
+		    margin-left:auto;
+		    padding:8px 14px;
+		    border:none;
+		    border-radius:8px;
+		    background:#374151;
+		    color:white;
+		    cursor:pointer;
+		}
+
+    </style>
+
+</head>
+
+<body>
+
+
+    <!-- CATEGORIES -->
+
+    <div
+        class="categories-panel"
+        id="categoriesPanel">
+
+        <div class="panel-header">
+
+            <div class="logo">
+                TESLA VIDEOS
+            </div>
+
+            <button
+			    id="addCategoryBtn"
+			    class="button"
+			    onclick="addCategory()">
+
+                + New Category
+
+            </button>
+
+        </div>
+
+        <div
+            class="categories"
+            id="categories">
+        </div>
+
+    </div>
+
+
+    <!-- VIDEOS -->
+
+    <div
+	    class="videos-panel"
+	    id="videosPanel">
+
+        <div class="panel-header">
+
+            <button
+			    id="addVideoBtn"
+			    class="button"
+			    onclick="addVideo()">
+
+                + Add Video
+
+            </button>
+
+            <input
+                type="text"
+                id="search"
+                class="search"
+                placeholder="Search Video..."
+                oninput="renderVideos()">
+
+        </div>
+
+        <div
+            class="video-list"
+            id="videos">
+        </div>
+
+    </div>
+
+
+    <!-- PLAYER -->
+
+    <div class="player-panel">
+
+        <div class="player-header">
+
+			<button
+				class="toggle-btn"
+				onclick="toggleCategories()">	
+				☰ Categories	
+			</button>
+
+			<button
+			    class="toggle-btn"
+			    onclick="toggleVideos()">
+			    ☰ Videos
+			</button>
+
+            <h2 id="currentTitle">
+                Select a Video
+            </h2>
+
+			<button
+		    id="loginBtn"
+		    onclick="testLogin()">		
+		    Login		
+			</button>
+
+        </div>
+
+        <div class="player-controls">
+
+            <button
+                class="control-btn"
+                onclick="previousVideo()">
+
+                ⏮ Previous
+
+            </button>
+
+            <button
+                class="control-btn"
+                onclick="nextVideo()">
+
+                Next ⏭
+
+            </button>
+
+        </div>
+
+        <div class="player-container">
+
+            <div id="player"></div>
+
+        </div>
+
+    </div>
+
+	<script type="module">
+
+	import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+	
+	import {
+	    getAuth,
+	    GoogleAuthProvider,
+	    signInWithPopup,
+		signOut,
+	    onAuthStateChanged
+	} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+	import {
+	    getFirestore,
+	    doc,
+	    setDoc,
+	    getDoc,
+	    onSnapshot
+	} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+	
+	const firebaseConfig = {
+	
+	  apiKey: "AIzaSyA3BQKYX2c-hDpmtrFyzbFWf3nn7pHziIc",
+	  authDomain: "teslavideos-d71e9.firebaseapp.com",
+	  projectId: "teslavideos-d71e9",
+	  storageBucket: "teslavideos-d71e9.firebasestorage.app",
+	  messagingSenderId: "96174368314",
+	  appId: "1:96174368314:web:2e7736bf50f47f6105f703",
+	  measurementId: "G-WHGVCY2H9G"
+	
+	};
+	
+	const app = initializeApp(firebaseConfig);
+	const auth = getAuth(app);
+	const db = getFirestore(app);
+	
+	window.firebaseAuth = auth;
+	window.GoogleAuthProvider = GoogleAuthProvider;
+	window.signInWithPopup = signInWithPopup;
+	window.firebaseSignOut = signOut;
+	window.firebaseOnAuthStateChanged = onAuthStateChanged;
+	window.db = db;
+	window.firebaseDoc = doc;
+	window.firebaseSetDoc = setDoc;
+	window.firebaseGetDoc = getDoc;
+	window.firebaseOnSnapshot = onSnapshot;
+		
+	console.log("Firebase Auth Ready");
+	window.dispatchEvent(new Event("firebaseReady"));
+	
+	</script>
+	
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+	<script>
+
+   const defaultLibrary = {
+
+    Afghani: [
+
+        {
+            title: "Sitaara",
+            youtubeId: "cpDyLJkhg0I"
+        },
+
+        {
+            title: "Charmer",
+            youtubeId: "CGhGAVH2GqY"
+        }
+
+    ],
+
+    Bollywood: []
+
+};
+
+let library = defaultLibrary;
+
+let currentCategory =
+    Object.keys(library)[0];
+
+let currentVideoIndex = 0;
+
+let player;
+let playerReady = false;
+let isAdmin = false;
+
+async function saveLibrary(){
+
+	await window.firebaseSetDoc(
+	    window.firebaseDoc(window.db, "library", "main"),
+	    { library: library }
+	);
+
+}
+
+function onYouTubeIframeAPIReady(){
+
+    player =
+        new YT.Player(
+            'player',
+            {
+                width:'100%',
+                height:'100%',
+
+                playerVars:{
+                    autoplay:1,
+                    rel:0
+                },
+
+                events:{
+                    onReady:onPlayerReady,
+                    onStateChange:onPlayerStateChange
+                }
+            }
+        );
+}
+
+function onPlayerReady(){
+
+    playerReady = true;
+
+    if(
+        library[currentCategory] &&
+        library[currentCategory].length
+    ){
+        playVideo(0);
+    }
+}
+
+function onPlayerStateChange(event){
+
+    if(
+        event.data ===
+        YT.PlayerState.ENDED
+    ){
+        nextVideo();
+    }
+}
+
+function renderCategories(){
+
+    const container =
+        document.getElementById(
+            'categories'
+        );
+
+    container.innerHTML = '';
+
+    Object.keys(library)
+        .forEach(category => {
+
+            const item =
+                document.createElement(
+                    'div'
+                );
+
+            item.className =
+                currentCategory === category
+                ? 'category active'
+                : 'category';
+
+            item.innerHTML = `
+			    <span>📁 ${category}</span>
+			    ${
+			        isAdmin
+					? `
+					    <span>
+					        <span
+					            style="cursor:pointer; margin-right:10px;"
+					            onclick="event.stopPropagation(); renameCategory('${category}')">
+					            ✏️
+					        </span>
+					
+					        <span
+					            style="cursor:pointer;"
+					            onclick="event.stopPropagation(); deleteCategory('${category}')">
+					            🗑️
+					        </span>
+					    </span>
+					`
+					: ''
+			    }
+			`;
+
+            item.onclick = () => {
+
+                currentCategory =
+                    category;
+
+                currentVideoIndex = 0;
+
+				renderCategories();
+                renderVideos();
+
+                if(
+                    playerReady &&
+                    library[category].length
+                ){
+                    playVideo(0);
+                }
+            };
+
+            container.appendChild(
+                item
+            );
+        });
+}
+
+function renderVideos(){
+
+    const container =
+        document.getElementById(
+            'videos'
+        );
+
+    const search =
+        document.getElementById(
+            'search'
+        )
+        .value
+        .toLowerCase();
+
+    container.innerHTML = '';
+
+    library[currentCategory]
+
+        .filter(video =>
+            video.title
+                .toLowerCase()
+                .includes(search)
+        )
+
+        .forEach((video,index)=>{
+
+            const item =
+                document.createElement(
+                    'div'
+                );
+
+            item.className =
+                index === currentVideoIndex
+                ? 'video-item active'
+                : 'video-item';
+
+            item.innerHTML = `
+			    <span>${video.title}</span>
+			    ${
+			        isAdmin
+					? `
+					    <span>
+					        <span
+					            style="cursor:pointer; margin-right:10px;"
+					            onclick="event.stopPropagation(); renameVideo(${index})">
+					            ✏️
+					        </span>
+					
+					        <span
+					            style="cursor:pointer;"
+					            onclick="event.stopPropagation(); deleteVideo(${index})">
+					            🗑️
+					        </span>
+					    </span>
+					`
+					: ''
+			    }
+			`;
+
+            item.onclick = () => {
+                playVideo(index);
+            };
+
+            container.appendChild(
+                item
+            );
+        });
+}
+
+function playVideo(index){
+
+    const videos =
+        library[currentCategory];
+
+    if(!videos.length){
+        return;
+    }
+
+    if(!playerReady){
+        return;
+    }
+
+    currentVideoIndex =
+        index;
+
+    const video =
+        videos[index];
+
+    document.getElementById(
+        'currentTitle'
+    ).textContent =
+        video.title;
+
+    player.loadVideoById(
+        video.youtubeId
+    );
+
+    renderVideos();
+}
+
+function nextVideo(){
+
+    const videos =
+        library[currentCategory];
+
+    if(!videos.length){
+        return;
+    }
+
+    currentVideoIndex++;
+
+    if(
+        currentVideoIndex >=
+        videos.length
+    ){
+        currentVideoIndex = 0;
+    }
+
+    playVideo(
+        currentVideoIndex
+    );
+}
+
+function previousVideo(){
+
+    const videos =
+        library[currentCategory];
+
+    if(!videos.length){
+        return;
+    }
+
+    currentVideoIndex--;
+
+    if(
+        currentVideoIndex < 0
+    ){
+        currentVideoIndex =
+            videos.length - 1;
+    }
+
+    playVideo(
+        currentVideoIndex
+    );
+}
+
+function addCategory(){
+
+    const name =
+        prompt(
+            'Category name'
+        );
+
+    if(!name){
+        return;
+    }
+
+    if(!library[name]){
+
+        library[name] = [];
+
+        saveLibrary();
+
+        renderCategories();
+    }
+}
+
+function addVideo(){
+
+    const title =
+        prompt(
+            'Video title'
+        );
+
+    if(!title){
+        return;
+    }
+
+    const youtubeUrl =
+        prompt(
+            'Paste YouTube link'
+        );
+
+    if(!youtubeUrl){
+        return;
+    }
+
+    let id = '';
+
+    if(
+        youtubeUrl.includes(
+            'watch?v='
+        )
+    ){
+
+        id =
+            youtubeUrl
+                .split('v=')[1]
+                .split('&')[0];
+    }
+
+    else if(
+        youtubeUrl.includes(
+            'youtu.be/'
+        )
+    ){
+
+        id =
+            youtubeUrl
+                .split('youtu.be/')[1]
+                .split('?')[0];
+    }
+
+    else if(
+        youtubeUrl.includes(
+            '/embed/'
+        )
+    ){
+
+        id =
+            youtubeUrl
+                .split('/embed/')[1];
+    }
+
+    if(!id){
+
+        alert(
+            'Only YouTube links are supported'
+        );
+
+        return;
+    }
+
+    library[currentCategory]
+        .push({
+
+            title:title,
+            youtubeId:id
+
+        });
+
+    saveLibrary();
+
+    renderVideos();
+}
+
+function updateLayout(){
+
+    const categoriesPanel =
+        document.getElementById(
+            'categoriesPanel'
+        );
+
+    const videosPanel =
+        document.getElementById(
+            'videosPanel'
+        );
+
+    const categoriesHidden =
+        categoriesPanel.classList.contains(
+            'hidden'
+        );
+
+    const videosHidden =
+        videosPanel.classList.contains(
+            'hidden'
+        );
+
+    if(
+        categoriesHidden &&
+        videosHidden
+    ){
+        document.body.style.gridTemplateColumns =
+            '1fr';
+    }
+    else if(
+        categoriesHidden &&
+        !videosHidden
+    ){
+        document.body.style.gridTemplateColumns =
+            '320px 1fr';
+    }
+    else if(
+        !categoriesHidden &&
+        videosHidden
+    ){
+        document.body.style.gridTemplateColumns =
+            '250px 1fr';
+    }
+    else{
+        document.body.style.gridTemplateColumns =
+            '250px 320px 1fr';
+    }
+}
+
+function toggleCategories(){
+
+    const panel =
+        document.getElementById(
+            'categoriesPanel'
+        );
+
+    panel.classList.toggle(
+        'hidden'
+    );
+
+    updateLayout();
+}
+
+function toggleVideos(){
+
+    const panel =
+        document.getElementById(
+            'videosPanel'
+        );
+
+    panel.classList.toggle(
+        'hidden'
+    );
+
+    updateLayout();
+}
+
+function renameCategory(category){
+
+    if(!isAdmin){
+        return;
+    }
+
+    const newName =
+        prompt(
+            'New category name',
+            category
+        );
+
+    if(!newName){
+        return;
+    }
+
+    if(newName === category){
+        return;
+    }
+
+    if(library[newName]){
+        alert(
+            'Category already exists'
+        );
+        return;
+    }
+
+    library[newName] =
+        library[category];
+
+    delete library[category];
+
+    if(currentCategory === category){
+        currentCategory = newName;
+    }
+
+    saveLibrary();
+
+    renderCategories();
+    renderVideos();
+}
+		
+function deleteCategory(category){
+
+    if(
+        !confirm(
+            'Delete category "' +
+            category +
+            '" ?'
+        )
+    ){
+        return;
+    }
+
+    delete library[category];
+
+    const categories =
+        Object.keys(library);
+
+    if(categories.length === 0){
+
+        library["New Category"] = [];
+
+        currentCategory =
+            "New Category";
+    }
+    else{
+
+        currentCategory =
+            categories[0];
+    }
+
+    saveLibrary();
+
+    renderCategories();
+    renderVideos();
+}
+
+function renameVideo(index){
+
+    if(!isAdmin){
+        return;
+    }
+
+    const videos =
+        library[currentCategory];
+
+    const video =
+        videos[index];
+
+    const newTitle =
+        prompt(
+            'New video title',
+            video.title
+        );
+
+    if(!newTitle){
+        return;
+    }
+
+    if(newTitle === video.title){
+        return;
+    }
+
+    video.title =
+        newTitle;
+
+    saveLibrary();
+
+    renderVideos();
+
+    if(index === currentVideoIndex){
+        document.getElementById(
+            'currentTitle'
+        ).textContent =
+        newTitle;
+    }
+}
+		
+function deleteVideo(index){
+
+    if(
+        !confirm(
+            'Delete video?'
+        )
+    ){
+        return;
+    }
+
+    library[currentCategory]
+        .splice(index,1);
+
+    saveLibrary();
+
+    currentVideoIndex = -1;
+
+    renderVideos();
+
+    document.getElementById(
+        'currentTitle'
+    ).textContent =
+    'Select a Video';
+}
+
+function updateAdminUI(){
+
+    if(isAdmin){
+
+        document.getElementById("addVideoBtn").style.display = "block";
+        document.getElementById("addCategoryBtn").style.display = "block";
+        document.getElementById("loginBtn").textContent = "Logout";
+
+    }
+    else{
+
+        document.getElementById("addVideoBtn").style.display = "none";
+        document.getElementById("addCategoryBtn").style.display = "none";
+        document.getElementById("loginBtn").textContent = "Login";
+
+    }
+
+}
+
+async function testLogin(){
+
+    if(isAdmin){
+
+        await window.firebaseSignOut(
+            window.firebaseAuth
+        );
+
+        isAdmin = false;
+
+        updateAdminUI();
+
+        renderCategories();
+        renderVideos();
+
+        console.log("Logout successful");
+
+        return;
+    }
+
+    const provider =
+        new window.GoogleAuthProvider();
+
+    await window.signInWithPopup(
+        window.firebaseAuth,
+        provider
+    );
+
+    console.log("Login successful");
+
+}
+
+function loadLibrary(){
+
+    window.firebaseOnSnapshot(
+        window.firebaseDoc(
+            window.db,
+            "library",
+            "main"
+        ),
+        function(snap){
+
+            if(snap.exists()){
+
+                library = snap.data().library;
+
+                if(
+                    !currentCategory ||
+                    !library[currentCategory]
+                ){
+                    currentCategory = Object.keys(library)[0];
+                    currentVideoIndex = 0;
+                }
+
+            }
+
+            renderCategories();
+            renderVideos();
+
+        }
+    );
+
+}	
+		
+updateAdminUI();
+
+window.addEventListener("firebaseReady", function(){
+
+    window.firebaseOnAuthStateChanged(
+        window.firebaseAuth,
+        function(user){
+
+            isAdmin =
+                user &&
+                user.email === "dsf0011@gmail.com";
+
+            updateAdminUI();
+
+            renderCategories();
+            renderVideos();
+
+        }
+    );
+
+    loadLibrary();
+
+});
+
+</script>
+
+</body>
+
+</html>
