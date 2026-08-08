@@ -682,67 +682,19 @@ function addVideo(){
         return;
     }
 
-    const youtubeUrl =
+    const videoUrl =
         prompt(
-            'Paste YouTube link'
+            'Paste direct video link, for example .mp4'
         );
 
-    if(!youtubeUrl){
-        return;
-    }
-
-    let id = '';
-
-    if(
-        youtubeUrl.includes(
-            'watch?v='
-        )
-    ){
-
-        id =
-            youtubeUrl
-                .split('v=')[1]
-                .split('&')[0];
-    }
-
-    else if(
-        youtubeUrl.includes(
-            'youtu.be/'
-        )
-    ){
-
-        id =
-            youtubeUrl
-                .split('youtu.be/')[1]
-                .split('?')[0];
-    }
-
-    else if(
-        youtubeUrl.includes(
-            '/embed/'
-        )
-    ){
-
-        id =
-            youtubeUrl
-                .split('/embed/')[1];
-    }
-
-    if(!id){
-
-        alert(
-            'Only YouTube links are supported'
-        );
-
+    if(!videoUrl){
         return;
     }
 
     library[currentCategory]
         .push({
-
             title:title,
-            youtubeId:id
-
+            videoUrl:videoUrl
         });
 
     saveLibrary();
