@@ -309,11 +309,7 @@
 
         <div class="player-container">
 
-            <video
-			    id="player"
-			    controls
-			    autoplay>
-			</video>
+            <div id="player"></div>
 
         </div>
 
@@ -371,16 +367,18 @@
 	
 	</script>
 	
+    <script src="https://www.youtube.com/iframe_api"></script>
+
 	<script>
 
    const defaultLibrary = {
 
     Afghani: [
 
-		{
-		    title: "Sitaara",
-		    videoUrl: "https://example.com/sitaara.mp4"
-		},
+        {
+            title: "Sitaara",
+            youtubeId: "cpDyLJkhg0I"
+        },
 
         {
             title: "Charmer",
@@ -413,24 +411,48 @@ async function saveLibrary(){
 
 }
 
-function initPlayer(){
+function onYouTubeIframeAPIReady(){
 
     player =
-        document.getElementById(
-            "player"
+        new YT.Player(
+            'player',
+            {
+                width:'100%',
+                height:'100%',
+
+                playerVars:{
+                    autoplay:1,
+                    rel:0
+                },
+
+                events:{
+                    onReady:onPlayerReady,
+                    onStateChange:onPlayerStateChange
+                }
+            }
         );
+}
+
+function onPlayerReady(){
 
     playerReady = true;
 
-    player.addEventListener(
-        "ended",
-        function(){
+    if(
+        library[currentCategory] &&
+        library[currentCategory].length
+    ){
+        playVideo(0);
+    }
+}
 
-            nextVideo();
+function onPlayerStateChange(event){
 
-        }
-    );
-
+    if(
+        event.data ===
+        YT.PlayerState.ENDED
+    ){
+        nextVideo();
+    }
 }
 
 function renderCategories(){
@@ -595,11 +617,9 @@ function playVideo(index){
     ).textContent =
         video.title;
 
-    const player = document.getElementById("player");
-
-	player.src = video.videoUrl;
-	
-	player.play();
+    player.loadVideoById(
+        video.youtubeId
+    );
 
     renderVideos();
 }
@@ -682,19 +702,67 @@ function addVideo(){
         return;
     }
 
-    const videoUrl =
+    const youtubeUrl =
         prompt(
-            'Paste direct video link, for example .mp4'
+            'Paste YouTube link'
         );
 
-    if(!videoUrl){
+    if(!youtubeUrl){
+        return;
+    }
+
+    let id = '';
+
+    if(
+        youtubeUrl.includes(
+            'watch?v='
+        )
+    ){
+
+        id =
+            youtubeUrl
+                .split('v=')[1]
+                .split('&')[0];
+    }
+
+    else if(
+        youtubeUrl.includes(
+            'youtu.be/'
+        )
+    ){
+
+        id =
+            youtubeUrl
+                .split('youtu.be/')[1]
+                .split('?')[0];
+    }
+
+    else if(
+        youtubeUrl.includes(
+            '/embed/'
+        )
+    ){
+
+        id =
+            youtubeUrl
+                .split('/embed/')[1];
+    }
+
+    if(!id){
+
+        alert(
+            'Only YouTube links are supported'
+        );
+
         return;
     }
 
     library[currentCategory]
         .push({
+
             title:title,
-            videoUrl:videoUrl
+            youtubeId:id
+
         });
 
     saveLibrary();
@@ -1005,8 +1073,6 @@ function loadLibrary(){
     );
 
 }	
-
-initPlayer();
 		
 updateAdminUI();
 
