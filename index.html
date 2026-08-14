@@ -462,12 +462,9 @@ function renderCategories(){
 				renderCategories();
                 renderVideos();
 
-                if(
-                    playerReady &&
-                    library[category].length
-                ){
-                    playVideo(0);
-                }
+                if(library[category].length){
+				    playVideo(0);
+				}
             };
 
             container.appendChild(
