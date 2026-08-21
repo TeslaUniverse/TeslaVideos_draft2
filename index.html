@@ -557,24 +557,29 @@ function playVideo(index){
 
     document.getElementById('currentTitle').textContent = video.title;
 
-    // Stop previous player if any
+    // Stop previous player
     if(jsmpegPlayer){
-        jsmpegPlayer.destroy();
+        try { jsmpegPlayer.destroy(); } catch(e) {}
         jsmpegPlayer = null;
     }
 
     const canvas = document.getElementById('player');
-    const youtubeUrl = "https://www.youtube.com/watch?v=" + video.youtubeId;
 
-    // Connect to your Oracle server
-    const wsUrl = "ws://79.76.33.242:8080/?url=" + encodeURIComponent(youtubeUrl);
-
-    jsmpegPlayer = new JSMpeg.Player(wsUrl, {
-        canvas: canvas,
-        autoplay: true,
-        audio: true,
-        loop: false
-    });
+    // Hvis videoen har en .ts-fil på serveren → afspil den
+    if(video.tsUrl){
+        jsmpegPlayer = new JSMpeg.Player(video.tsUrl, {
+            canvas: canvas,
+            autoplay: true,
+            audio: true,
+            loop: false,
+            progressive: true
+        });
+    }
+    // Ellers (gamle YouTube-links uden .ts endnu)
+    else {
+        document.getElementById('currentTitle').textContent =
+            video.title + " (ikke downloadet endnu)";
+    }
 
     renderVideos();
 }
@@ -1028,6 +1033,40 @@ function loadLibrary(){
     );
 
 }	
+
+async function loadServerVideos(){
+    try {
+        const res = await fetch('http://79.76.33.242:3000/api/videos');
+        const files = await res.json();
+
+        if(!library['Mixed']){
+            library['Mixed'] = [];
+        }
+
+        // Ryd gamle Mixed-videoer der kommer fra serveren
+        library['Mixed'] = library['Mixed'].filter(v => !v.fromServer);
+
+        files.forEach(f => {
+            library['Mixed'].push({
+                title: f.name.replace('.ts', ''),
+                tsUrl: 'http://79.76.33.242:3000' + f.url,
+                fromServer: true
+            });
+        });
+
+        if(!currentCategory || !library[currentCategory]){
+            currentCategory = 'Mixed';
+        }
+
+        renderCategories();
+        renderVideos();
+    } catch(e){
+        console.error('Kunne ikke hente server-videoer', e);
+    }
+}
+
+// Kald den
+loadServerVideos();
 		
 updateAdminUI();
 
